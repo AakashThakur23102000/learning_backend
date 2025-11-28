@@ -1,16 +1,22 @@
 const express = require("express");
 const { StatusCodes, ReasonPhrases } = require("http-status-codes");
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
+const morgan = require("morgan");
 
 const app = express();
 
+// Middlewares
 app.use(express.json());
+app.use(morgan("dev"))
 
+// constants
 const UserRecordFilePath = path.join(__dirname, "records", "UserRecords.txt");
 
+
+// Api
 app.get("/list-user", (req, res) => {
-    const userList = fs.readFile(UserRecordFilePath, (error, data) => {
+    fs.readFile(UserRecordFilePath, (error, data) => {
         if (error) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 status: false,
@@ -21,8 +27,8 @@ app.get("/list-user", (req, res) => {
 
         const dataReadable = data?.toString();
         const row = dataReadable?.split("\n") ?? [];
-        var resArr = [];
-        for (var i = 0; i < row.length; i++) {
+        let resArr = [];
+        for (let i = 0; i < row.length; i++) {
             if (i !== row.length - 1) {
                 const responseArr = row[i]?.split("<>");
                 resArr?.push({
@@ -87,6 +93,7 @@ app.post("/add-user", (req, res) => {
     });
 });
 
+// Port Listener
 app.listen(3000, () => {
     console.log("-----server is running-----");
 });
